@@ -1,8 +1,8 @@
 # Isotope Breakout firmware
 
-## Compiling and uploading code
+## Preparation
 
-To compile and upload code to the Isotope Board, the Arduino IDE is used.
+To compile and upload the firmware to the Isotope Board, the Arduino IDE is used and necessary dependencies such as Arduino core and several external libraries need to be installed.
 
 ### Arduino IDE
 
@@ -22,5 +22,10 @@ To compile this code, the following libraries are necessary:
 - DRV8434S
 - Adafruit_NeoPixel
 
-To install them, in the Arduino IDE go to Sketch> Include Libary> Manage Libaries and select and install the previous Libraries
-# isotope_firmware
+To install them, in the Arduino IDE go to Sketch> Include Libary> Manage Libaries, search the names, select and install the latest versions.
+
+## Upload isotope firmware
+
+Once preparation work is completed, open Isotope_Breakout.ino in Arduino IDE.
+
+Select the correct port and board from Tools menu and then select Upload.
