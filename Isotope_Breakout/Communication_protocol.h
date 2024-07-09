@@ -10,28 +10,28 @@
 
 //String definition for the protocol-------------------------------------------
 // Type Definitions
-String get_s = "GET";
-String set_s = "SET";
+String GET_S = "GET";
+String SET_S = "SET";
 
 //Section Definitions
-String Who_I_am         =   "Who_I_am";
-String ID_value         =   "ID_value";
-String HeartBeat        =   "HeartBeat";
-String Power_output     =   "Power_output";
-String Temp_sensor      =   "Temp_sensor";
-String PWM_output       =   "PWM_output";
-String PWM_enable       =   "PWM_enable";
-String Analog_input     =   "Analog_input";
-String RGB_red          =   "RGB_red";
-String RGB_green        =   "RGB_green";
-String RGB_blue         =   "RGB_blue";
-String Motor_rpm_speed  =   "Motor_rpm_speed";
-String Motor_step       =   "Motor_step";
-String Motor_current_milliamps  =   "Motor_current_milliamps";
-String Motor_enable     =   "Motor_enable";
+String WHO_I_AM         =   "Who_I_am";
+String ID_VALUE         =   "ID_value";
+String HEARTBEAT        =   "HeartBeat";
+String POWER_OUTPUT     =   "Power_output";
+String TEMP_SENSOR      =   "Temp_sensor";
+String PWM_OUTPUT       =   "PWM_output";
+String PWM_ENABLE       =   "PWM_enable";
+String ANALOG_INPUT     =   "Analog_input";
+String RGB_RED          =   "RGB_red";
+String RGB_GREEN        =   "RGB_green";
+String RGB_BLUE         =   "RGB_blue";
+String MOTOR_RPM_SPEED  =   "Motor_rpm_speed";
+String MOTOR_STEP       =   "Motor_step";
+String MOTOR_CURRENT_MILLIAMPS  =   "Motor_current_milliamps";
+String MOTOR_ENABLE     =   "Motor_enable";
 
 // Responses Definitions
-String cmd_ack =  "ACK"; //Used as a code for 'No error'
+String CMD_ACK =  "ACK"; //Used as a code for 'No error'
 
 //Command strcuture-------------------------------------------------------------
 struct CMD_t {

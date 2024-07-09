@@ -19,7 +19,7 @@
 // StaticJsonDocument<200> json_doc;
 JsonDocument json_doc;
 // char json_msg[] =
-//       '{"type": "GET", "section": "Power_output", "item": 3, "value": 0}';
+//       '{"type": "GET", "section": "POWER_OUTPUT", "item": 3, "value": 0}';
 
 // https://arduinojson.org/
 
@@ -61,7 +61,7 @@ bool handle_incoming_cmd(){
       //Update the heartbeat, as comunication from the control PCB has been received
       update_comms_latency();
       //Call handle function depending on which was the request
-      if(type_s.substring(0,3) == get_s){
+      if(type_s.substring(0,3) == GET_S){
         if(Debug_flag)
         {
         Serial.println("Request of a GET command");
@@ -69,7 +69,7 @@ bool handle_incoming_cmd(){
         //Request is a GET command, execute it
         execute_get_cmd(section_s, item_s.toInt());
       }
-      else if(type_s.substring(0,3) == set_s){
+      else if(type_s.substring(0,3) == SET_S){
         if(Debug_flag)
         {
         Serial.println("Request of a SET command");
@@ -93,10 +93,10 @@ bool handle_incoming_cmd(){
 //Execute GET command. Obtain the requested data and send a reply-------------------
 void execute_get_cmd(String section_s, int item_i){
   String payload_s;
-  if(Who_I_am.equals(section_s)){// Get Who_I_am request-----------------------
-  send_reply(who_am_i(), cmd_ack);
+  if(WHO_I_AM.equals(section_s)){// Get Who_I_am request-----------------------
+  send_reply(who_am_i(), CMD_ACK);
   }
-  else if(Power_output.equals(section_s)){ //GET Power_output Request----------
+  else if(POWER_OUTPUT.equals(section_s)){ //GET Power_output Request----------
     if(item_i > 2 || item_i < 0){ //Check for error out of range
       send_reply("0", wrong_cmd_item);
     }
@@ -104,30 +104,30 @@ void execute_get_cmd(String section_s, int item_i){
       switch (item_i) {
         case 0:
           payload_s = String(POWER_OUT_VAL_0);
-          send_reply(payload_s, cmd_ack);
+          send_reply(payload_s, CMD_ACK);
           break;
         case 1:
           payload_s = String(POWER_OUT_VAL_1);
-          send_reply(payload_s, cmd_ack);
+          send_reply(payload_s, CMD_ACK);
           break;
         case 2:
           payload_s = String(POWER_OUT_VAL_2);
-          send_reply(payload_s, cmd_ack);
+          send_reply(payload_s, CMD_ACK);
           break;
       }
     }
   }
-  else if(Temp_sensor.equals(section_s)){ //GET Temp_sensor request------------
+  else if(TEMP_SENSOR.equals(section_s)){ //GET Temp_sensor request------------
     if(item_i > 2 || item_i < 0){ //Check for error out of range
       send_reply("0", wrong_cmd_item);
       }
     else{ //Correct item range, send value
       float tmp_val = read_temp_sensor(item_i);
       payload_s = String(tmp_val);
-      send_reply(payload_s, cmd_ack);
+      send_reply(payload_s, CMD_ACK);
     }
   }
-  else if(PWM_output.equals(section_s)){ //GET PWM_Output request--------------
+  else if(PWM_OUTPUT.equals(section_s)){ //GET PWM_Output request--------------
     if(item_i > 3 || item_i < 0){ //Check for error out of range
       send_reply("0", wrong_cmd_item);
     }
@@ -135,50 +135,50 @@ void execute_get_cmd(String section_s, int item_i){
       switch (item_i) {
         case 0:
           payload_s = String(PWM_OUT_VAL_0);
-          send_reply(payload_s, cmd_ack);
+          send_reply(payload_s, CMD_ACK);
           break;
         case 1:
           payload_s = String(PWM_OUT_VAL_1);
-          send_reply(payload_s, cmd_ack);
+          send_reply(payload_s, CMD_ACK);
           break;
         case 2:
           payload_s = String(PWM_OUT_VAL_2);
-          send_reply(payload_s, cmd_ack);
+          send_reply(payload_s, CMD_ACK);
           break;
         case 3:
           payload_s = String(PWM_OUT_VAL_3);
-          send_reply(payload_s, cmd_ack);
+          send_reply(payload_s, CMD_ACK);
           break;
       }
     }
   }
-  else if(PWM_enable.equals(section_s)){// GET PWM EN status-------------------
+  else if(PWM_ENABLE.equals(section_s)){// GET PWM EN status-------------------
     if(read_pwm_en()){
       payload_s = String(1);
     }
     else{
       payload_s = String(0);
     }
-    send_reply(payload_s, cmd_ack);
+    send_reply(payload_s, CMD_ACK);
   }
-  else if(Analog_input.equals(section_s)){ //GET Analog_input request----------
+  else if(ANALOG_INPUT.equals(section_s)){ //GET Analog_input request----------
     if(item_i > 2 || item_i < 0){ //Check for error out of range
       send_reply("0", wrong_cmd_item);
       }
     else{ //Correct item range, send value
       int analogue_val = read_analogue_val(item_i);
       payload_s = String(analogue_val);
-      send_reply(payload_s, cmd_ack);
+      send_reply(payload_s, CMD_ACK);
     }
   }
-  else if(Motor_rpm_speed.equals(section_s)){ //GET Motor_speed request------------
+  else if(MOTOR_RPM_SPEED.equals(section_s)){ //GET Motor_speed request------------
     if(item_i > 3 || item_i < 0){ //Check for error out of range
       send_reply("0", wrong_cmd_item);
       }
     else{ //Correct item range, send value
       int motor_val = read_motor_rpm_speed(item_i);
       payload_s = String(motor_val);
-      send_reply(payload_s, cmd_ack);
+      send_reply(payload_s, CMD_ACK);
     }
   }
   // --- Add additional commands above this line --------------------------------
@@ -189,7 +189,7 @@ void execute_get_cmd(String section_s, int item_i){
 
 //Execute SET command. Obtain the requested data and execute ---------------------
 void execute_set_cmd(String section_s, int item_i, int value_i){
-  if(Power_output.equals(section_s)){ //Set the Power Output PWM value-----------
+  if(POWER_OUTPUT.equals(section_s)){ //Set the Power Output PWM value-----------
     if(item_i > 2 || item_i < 0){ //Check for error out of range
       send_reply("0", wrong_cmd_item);
       }
@@ -199,11 +199,11 @@ void execute_set_cmd(String section_s, int item_i, int value_i){
       }
       else{
         set_output_power(item_i, value_i);
-        send_reply("0", cmd_ack);
+        send_reply("0", CMD_ACK);
       }
     }
   }
-  else if(PWM_output.equals(section_s)){//Set the PWM output value---------------
+  else if(PWM_OUTPUT.equals(section_s)){//Set the PWM output value---------------
     if(item_i > 3 || item_i < 0){ //Check for error out of range
       send_reply("0", wrong_cmd_item);
       }
@@ -213,88 +213,88 @@ void execute_set_cmd(String section_s, int item_i, int value_i){
       }
       else{
         set_pwm_output(item_i, value_i);
-        send_reply("0", cmd_ack);
+        send_reply("0", CMD_ACK);
       }
     }
   }
-  else if(PWM_enable.equals(section_s)){//Set the PWM ENABLE value---------------
+  else if(PWM_ENABLE.equals(section_s)){//Set the PWM ENABLE value---------------
     if(value_i>=1){ //If 1 or more enable, else disable
       set_pwm_en(true);
     }
     else{
       set_pwm_en(false);
     }
-    send_reply("0", cmd_ack);
+    send_reply("0", CMD_ACK);
   }
-  else if(RGB_red.equals(section_s)){// set the red channel value for the LED
+  else if(RGB_RED.equals(section_s)){// set the red channel value for the LED
     //Ensure value is within correct range values
     if(value_i >= 0 && value_i <256){
       set_rgb(1 , value_i);
-      send_reply("0", cmd_ack);
+      send_reply("0", CMD_ACK);
     }
     else{//Wrong value received
       send_reply("0", wrong_cmd_value);
     }
   }
-  else if(RGB_green.equals(section_s)){// set the red channel value for the LED
+  else if(RGB_GREEN.equals(section_s)){// set the red channel value for the LED
     //Ensure value is within correct range values
     if(value_i >= 0 && value_i <256){
       set_rgb(2 , value_i);
-      send_reply("0", cmd_ack);
+      send_reply("0", CMD_ACK);
     }
     else{//Wrong value received
       send_reply("0", wrong_cmd_value);
     }
   }
-  else if(RGB_blue.equals(section_s)){// set the red channel value for the LED
+  else if(RGB_BLUE.equals(section_s)){// set the red channel value for the LED
     //Ensure value is within correct range values
     if(value_i >= 0 && value_i <256){
       set_rgb(3 , value_i);
-      send_reply("0", cmd_ack);
+      send_reply("0", CMD_ACK);
     }
   }
-  else if(HeartBeat.equals(section_s)){//Set the heartbeat latency counter to 0---------------
-      send_reply("0", cmd_ack);
+  else if(HEARTBEAT.equals(section_s)){//Set the heartbeat latency counter to 0---------------
+      send_reply("0", CMD_ACK);
   }
-  else if(Motor_rpm_speed.equals(section_s)){//Set the Motor Speed value---------------
+  else if(MOTOR_RPM_SPEED.equals(section_s)){//Set the Motor Speed value---------------
     if(item_i > 3 || item_i < 0){ //Check for error out of range
       send_reply("0", wrong_cmd_item);
     }
     else{
       if(value_i<=Max_motor_rpm_speed && value_i>=0){
         set_motor_rpm_speed(item_i, value_i);
-        send_reply("0", cmd_ack);
+        send_reply("0", CMD_ACK);
       }
       else{//Reply with wrong value (out of limits)
         send_reply("0", wrong_cmd_value);
       }
     }
   }
-  else if(Motor_step.equals(section_s)){//Execute Motor steps---------------
+  else if(MOTOR_STEP.equals(section_s)){//Execute Motor steps---------------
     if(item_i > 3 || item_i < 0){ //Check for error out of range
       send_reply("0", wrong_cmd_item);
     }
     else{
       //TODO: set a max number of steps?
       set_motor_steps(item_i, value_i);
-      send_reply("0", cmd_ack);
+      send_reply("0", CMD_ACK);
       }
   }
-  else if (Motor_current_milliamps.equals(section_s)){//Set the Motor current value---------------
+  else if (MOTOR_CURRENT_MILLIAMPS.equals(section_s)){//Set the Motor current value---------------
     if(item_i > 3 || item_i < 0){ //Check for error out of range
       send_reply("0", wrong_cmd_item);
     }
     else{
       set_motor_current_milliamps(item_i, value_i);
-      send_reply("0", cmd_ack);
+      send_reply("0", CMD_ACK);
     }
   }
-  else if (Motor_enable.equals(section_s)){//Set the Motor enable value---------------
+  else if (MOTOR_ENABLE.equals(section_s)){//Set the Motor enable value---------------
     if(item_i > 3 || item_i < 0){ //Check for error out of range
       send_reply("0", wrong_cmd_item);
     }
     set_motor_enable(item_i, value_i>=1); //If 1 or more enable, else disable
-    send_reply("0", cmd_ack);
+    send_reply("0", CMD_ACK);
   }
   // --- Add additional commands above this line --------------------------------
   else { // ERROR in the requested SECTION--------------------------------------
