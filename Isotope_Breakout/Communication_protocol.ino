@@ -24,6 +24,8 @@ JsonDocument json_doc;
 // {"type": "SET", "section": "PWM_mode", "item": 0, "value": [1,0]}
 // {"type": "SET", "section": "PWM_output", "item": 0, "value": [180,0]}
 
+// {"type": "SET", "section": "Motor_enable", "item": 0, "value": [1,0]}{"type": "SET", "section": "Motor_step_angle", "item": 0, "value": [7.5,0]}{"type": "SET", "section": "Motor_rpm_speed", "item": 0, "value": [1,0]}
+// {"type": "SET", "section": "Motor_step", "item": 0, "value": [10,0]}
 // https://arduinojson.org/
 
 bool validate_cmd_value(int value, int min, int max)
@@ -124,9 +126,13 @@ void execute_get_cmd(String section_s, int item_i)
 {
   String payload_s;
   cmd_resp_t response = OK;
-  if (WHO_I_AM == section_s)
+  if (ANALOG_INPUT == section_s)
   {
-    payload_s = who_am_i();
+    if (!validate_item_value(item_i, 0, 2))
+    {
+      return;
+    }
+    payload_s = String(read_analogue_val(item_i));
   }
   else if (POWER_OUTPUT == section_s)
   {
@@ -134,18 +140,7 @@ void execute_get_cmd(String section_s, int item_i)
     {
       return;
     }
-    switch (item_i)
-    {
-    case 0:
-      payload_s = String(power_out_val_0);
-      break;
-    case 1:
-      payload_s = String(power_out_val_1);
-      break;
-    case 2:
-      payload_s = String(power_out_val_2);
-      break;
-    }
+    payload_s = String(read_power_out_val(item_i));
   }
   else if (TEMP_SENSOR == section_s)
   {
@@ -167,21 +162,13 @@ void execute_get_cmd(String section_s, int item_i)
   {
     payload_s = String(int(pwm_controller.is_enabled()));
   }
-  else if (ANALOG_INPUT == section_s)
-  {
-    if (!validate_item_value(item_i, 0, 2))
-    {
-      return;
-    }
-    payload_s = String(read_analogue_val(item_i));
-  }
   else if (MOTOR_RPM_SPEED == section_s)
   {
-    if (!validate_item_value(item_i, 0, 3))
-    {
-      return;
-    }
-    payload_s = String(read_motor_rpm_speed(item_i));
+    payload_s = String(motor_controller.get_rpm(item_i, response));
+  }
+  else if (WHO_I_AM == section_s)
+  {
+    payload_s = who_am_i();
   }
 
   // --- Add additional commands above this line --------------------------------
@@ -233,35 +220,23 @@ void execute_set_cmd(String section_s, int item_i, int *value_a)
   }
   else if (MOTOR_RPM_SPEED == section_s)
   {
-    if (!validate_item_value(item_i, 0, 3) || !validate_cmd_value(value_a[0], 0, Max_motor_rpm_speed))
-    {
-      return;
-    }
-    set_motor_rpm_speed(item_i, value_a[0]);
+    motor_controller.set_rpm(item_i, value_a[0], response);
+  }
+  else if (MOTOR_STEP_ANGLE == section_s)
+  {
+    motor_controller.set_step_angle(item_i, value_a[0], response);
   }
   else if (MOTOR_STEP == section_s)
   {
-    if (!validate_item_value(item_i, 0, 3))
-    {
-      return;
-    }
-    set_motor_steps(item_i, value_a[0]);
+    motor_controller.set_step(item_i, value_a[0], response);
   }
   else if (MOTOR_CURRENT_MILLIAMPS == section_s)
   {
-    if (!validate_item_value(item_i, 0, 3))
-    {
-      return;
-    }
-    set_motor_current_milliamps(item_i, value_a[0]);
+    motor_controller.set_current_milliamps(item_i, value_a[0], response);
   }
   else if (MOTOR_ENABLE == section_s)
   {
-    if (!validate_item_value(item_i, 0, 3))
-    {
-      return;
-    }
-    set_motor_enable(item_i, value_a[0] >= 1);
+    motor_controller.set_enable(item_i, value_a[0] >= 1, response);
   }
 
   // --- Add additional commands above this line --------------------------------

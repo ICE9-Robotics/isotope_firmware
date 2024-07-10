@@ -1,5 +1,5 @@
-#ifndef ISOTOPE_PWM_H
-#define ISOTOPE_PWM_H
+#ifndef ISOTOPE_PORT_PWM_H
+#define ISOTOPE_PORT_PWM_H
 
 #include <Arduino.h>
 #include <Servo.h>
@@ -24,7 +24,7 @@ public:
 
     void set_mode(pwm_mode_t mode);
     bool set_control_value(int value, pwm_value_type_t value_type);
-    int get_control_value();
+    inline int get_control_value() { return _value; }
 
 private:
     uint8_t _pin;
@@ -36,8 +36,7 @@ private:
 class IsotopePWMController
 {
 public:
-    IsotopePWMController();
-    void setup(uint8_t pins[4], uint8_t enable_pin);
+    void setup(const uint8_t *pins, uint8_t enable_pin);
     void enable();
     void disable();
     void set_enable_state(bool state);

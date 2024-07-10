@@ -19,11 +19,6 @@ void IsotopePWM::set_mode(pwm_mode_t mode)
     }
 }
 
-int IsotopePWM::get_control_value()
-{
-    return _value;
-}
-
 bool IsotopePWM::set_control_value(int value, pwm_value_type_t value_type)
 {
     if (_mode == PWM_MODE_STANDARD && value_type == PWM_VALUE_TYPE_PWM)
@@ -58,11 +53,7 @@ bool IsotopePWM::set_control_value(int value, pwm_value_type_t value_type)
     return true;
 }
 
-IsotopePWMController::IsotopePWMController() 
-{
-}
-
-void IsotopePWMController::setup(uint8_t pins[4], uint8_t enable_pin)
+void IsotopePWMController::setup(const uint8_t *pins, uint8_t enable_pin)
 {
     _enable_pin = enable_pin;
     for (int i = 0; i < 4; ++i)

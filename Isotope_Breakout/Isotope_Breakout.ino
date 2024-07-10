@@ -25,6 +25,7 @@
 #include "Isotope_breakout_defs.h"
 #include "Communication_protocol.h"
 #include "Isotope_port_pwm.h"
+#include "Isotope_port_motor.h"
 
 // Constructors-----------------------------------------------------------------
 //Temp sensors, class, pin, object
@@ -35,23 +36,9 @@ MicroDS18B20<Temp_In_2> Temp_sensor_2;
 // RGB LED
 Adafruit_NeoPixel rgb(1, RGB_LED, NEO_GRB + NEO_KHZ800);
 
-IsotopePWMController pwm_controller;
-
-//Stepper motors
-// This period is the length of the delay between steps, which controls the
-// stepper motor's speed.  You can increase the delay to make the stepper motor
-// go slower.  If you decrease the delay, the stepper motor will go faster, but
-// there is a limit to how fast it can go before it starts missing steps.
-const uint16_t StepPeriodUs = 2000;
-
-DRV8434S motor_0;
-DRV8434S motor_1;
-DRV8434S motor_2;
-DRV8434S motor_3;
-
-
 //Variable definition-----------------------------------------------------------
-
+IsotopePWMController pwm_controller;
+IsotopeMotorController motor_controller;
 
 //FLAGs-------------------------------------------------------------------------
 //Global flag for debug. Only use if the Isotope Board is going to be used from a terminal
@@ -69,10 +56,6 @@ void setup() {
 
   //Initialize SPI communications
   SPI.begin();
-
-  //Initialize ports
-  uint8_t pwm_port_pins[4] = {PWM_0, PWM_1, PWM_2, PWM_3};
-  pwm_controller.setup(pwm_port_pins, PWM_EN);
 
   //Start comms
   Serial.begin(115200);
@@ -113,12 +96,18 @@ void setup() {
   pinMode(DRV_FAULT_3,  INPUT);
 
   //Turn Off all PWMs
-  digitalWrite(PWM_EN,LOW);
+  digitalWrite(PWM_EN,HIGH);
 
   //Turn Off all power outputs
   digitalWrite(POWER_OUT_0,LOW);
   digitalWrite(POWER_OUT_1,LOW);
   digitalWrite(POWER_OUT_2,LOW);
+
+  //Initialize port instances
+  uint8_t pwm_port_pins[4] = {PWM_0, PWM_1, PWM_2, PWM_3};
+  pwm_controller.setup(pwm_port_pins, PWM_EN);
+  uint8_t motor_cs_pins[4] = {SPI_CS_0, SPI_CS_1, SPI_CS_2, SPI_CS_3};
+  motor_controller.setup(motor_cs_pins);
 
   //Setup PWM characteristics
   // analogWriteFreq(uint32_t frequency);
@@ -127,44 +116,6 @@ void setup() {
 
   //Setup ADC resolution
   analogReadResolution(10);// Set ADC resolution to 10 bits (max value of 1024)
-
-  //Initialize motor controllers
-  motor_0.setChipSelectPin(SPI_CS_0);
-  motor_1.setChipSelectPin(SPI_CS_1);
-  motor_2.setChipSelectPin(SPI_CS_2);
-  motor_3.setChipSelectPin(SPI_CS_3);
-  //Delay to allow the motor controllers to initialize
-  delay(5);
-  //Reset the controller and clear the fault flags
-  motor_0.resetSettings();
-  motor_0.clearFaults();
-  motor_1.resetSettings();
-  motor_1.clearFaults();
-  motor_2.resetSettings();
-  motor_2.clearFaults();
-  motor_3.resetSettings();
-  motor_3.clearFaults();
-  //Set the Max current (which is also limited in hardware to 2A, but can be limited in firmware to less)
-  motor_0.setCurrentMilliamps(100);
-  motor_1.setCurrentMilliamps(100);
-  motor_2.setCurrentMilliamps(100);
-  motor_3.setCurrentMilliamps(100);
-  // Set the number of microsteps that correspond to one full step.
-  //Using MicroStep8 each full motor step is devided in 8 microsteps
-  motor_0.setStepMode(DRV8434SStepMode::MicroStep1);
-  motor_1.setStepMode(DRV8434SStepMode::MicroStep1);
-  motor_2.setStepMode(DRV8434SStepMode::MicroStep1);
-  motor_3.setStepMode(DRV8434SStepMode::MicroStep1);
-
-  // Enable direction and step control through SPI.
-  motor_0.enableSPIDirection();
-  motor_0.enableSPIStep();
-  motor_1.enableSPIDirection();
-  motor_1.enableSPIStep();
-  motor_2.enableSPIDirection();
-  motor_2.enableSPIStep();
-  motor_3.enableSPIDirection();
-  motor_3.enableSPIStep();
 
   //TODO: Look for temp sensors
   if(Debug_flag){
@@ -201,5 +152,5 @@ void loop() {
   //in constant communication with the control PC and if its not, to set all the control
   // outputs to 0
   check_comms_latency();
-
+  motor_controller.step_once();
 }

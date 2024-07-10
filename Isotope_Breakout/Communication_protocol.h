@@ -12,10 +12,10 @@
 // Type Definitions
 const String GET_S = "GET";
 const String SET_S = "SET";
-const int PWM_MODE_STANDARD_s = "0";
-const int PWM_MODE_SERVO_s = "1";
-const int PWM_VALUE_TYPE_PWM_s = "0";
-const int PWM_VALUE_TYPE_MS_s = "1";
+const String PWM_MODE_STANDARD_s = "0";
+const String PWM_MODE_SERVO_s = "1";
+const String PWM_VALUE_TYPE_PWM_s = "0";
+const String PWM_VALUE_TYPE_MS_s = "1";
 
 //Section Definitions
 const String WHO_I_AM         =   "Who_I_am";
@@ -28,6 +28,7 @@ const String PWM_ENABLE       =   "PWM_enable";
 const String ANALOG_INPUT     =   "Analog_input";
 const String RGB              =   "RGB";
 const String MOTOR_RPM_SPEED  =   "Motor_rpm_speed";
+const String MOTOR_STEP_ANGLE =   "Motor_step_angle";
 const String MOTOR_STEP       =   "Motor_step";
 const String MOTOR_CURRENT_MILLIAMPS  =   "Motor_current_milliamps";
 const String MOTOR_ENABLE     =   "Motor_enable";
