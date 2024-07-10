@@ -33,11 +33,6 @@ int  read_analogue_val(int analog_channel){
   }
 }
 
-//Read PWM enable status
-bool read_pwm_en(){
-  return PWM_EN_VAL;
-}
-
 //Read Temperature value in C
 float read_temp_sensor(int item){
   switch (item) {
@@ -79,53 +74,20 @@ int read_motor_rpm_speed(int item){
   return 0; //In case wrong sensor index is requested
 }
 
-//Set PWM enable
-void set_pwm_en(bool state){
-  PWM_EN_VAL = state;
-  if(PWM_EN_VAL){ //PWM DRIVER ENABLE is negated, active LOW
-    digitalWrite(PWM_EN, LOW);
-  }
-  else{
-    digitalWrite(PWM_EN, HIGH);
-  }
-}
-
 //Set outoput power, set the PWM value of the Power Outputs (0 to 1024)
 void set_output_power(int item, int pwm_value){
   switch (item) {
     case 0:
-      POWER_OUT_VAL_0 = pwm_value;
+      power_out_val_0 = pwm_value;
       analogWrite(POWER_OUT_0, pwm_value);
       break;
     case 1:
-      POWER_OUT_VAL_1 = pwm_value;
+      power_out_val_1 = pwm_value;
       analogWrite(POWER_OUT_1, pwm_value);
       break;
     case 2:
-      POWER_OUT_VAL_2 = pwm_value;
+      power_out_val_2 = pwm_value;
       analogWrite(POWER_OUT_2, pwm_value);
-      break;
-  }
-}
-
-//Set PWM output value, se the PWM value of the PWM outputs (0 to 1024)
-void set_pwm_output(int item, int pwm_value){
-  switch (item) {
-    case 0:
-      PWM_OUT_VAL_0 = pwm_value;
-      analogWrite(PWM_0, pwm_value);
-      break;
-    case 1:
-      PWM_OUT_VAL_1 = pwm_value;
-      analogWrite(PWM_1, pwm_value);
-      break;
-    case 2:
-      PWM_OUT_VAL_2 = pwm_value;
-      analogWrite(PWM_2, pwm_value);
-      break;
-    case 3:
-      PWM_OUT_VAL_3 = pwm_value;
-      analogWrite(PWM_3, pwm_value);
       break;
   }
 }
@@ -221,26 +183,24 @@ void set_motor_enable(int item, bool state){
 }
 
 //Set the colors of the RGB LED on board
-void set_rgb(int channel, int pwm_val){
-  switch (channel)
-  {
-  case 1: //Red Channel
-    RGB_RED = pwm_val;
-    break;
-  case 2: //Green Channel
-    RGB_GREEN = pwm_val;
-    break;
-  case 3: //Blue Channel
-    RGB_BLUE = pwm_val;
-    break;
-  }
-  rgb.setPixelColor(0, rgb.Color(RGB_RED, RGB_GREEN, RGB_BLUE));
+void set_rgb(int *rgb_val){
+  rgb_red = rgb_val[0];
+  rgb_green = rgb_val[1];
+  rgb_blue = rgb_val[2];
+  rgb.setPixelColor(0, rgb.Color(rgb_red, rgb_green, rgb_blue));
   rgb.show();
+}
+
+void set_rgb(int channel, int value)
+{
+  int rgb[3];
+  rgb[channel] = value;
+  set_rgb(rgb);
 }
 
 //Set motor steps, set the direction based on sign and the absolute value for steps
 void set_motor_steps(int item, int steps){
-  set_rgb(2,50);
+  set_rgb(2, 50);
   //Set direction based on steps sign
   switch (item)
   {
@@ -307,7 +267,7 @@ void set_motor_steps(int item, int steps){
     }
     break;
   }
-  set_rgb(2,0);
+  set_rgb(2, 0);
 }
 
 //Update the time of when the last communication was received
@@ -333,12 +293,13 @@ void check_comms_latency(){
     //in use, the control program in the control PC has crashed, or the communication between
     //the Isotope Board and the control PC has been lost.
     //Based on previous possible scenarios, turn off all outputs
-    set_pwm_output(0,0);
-    set_pwm_output(1,0);
-    set_pwm_output(2,0);
-    set_pwm_output(3,0);
+    pwm_controller.disable();
+    set_output_power(0, 0);
+    set_output_power(1, 0);
+    set_output_power(2, 0);
     //TODO turn Off Power Outputs PWMs
     //Set the RGB in RED to show this
-    set_rgb(1,30);
+    int rgb_val[3] = {30,0,0};
+    set_rgb(rgb_val);
   }
 }

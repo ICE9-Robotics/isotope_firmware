@@ -16,14 +16,15 @@
 
 */
 //Libaries needed---------------------------------------------------------------
-#include "Isotope_breakout_defs.h"
-#include "Communication_protocol.h"
 #include <ArduinoJson.h>
 #include <microDS18B20.h> // For the DS18B20 temperature sensor
 #include <SPI.h>
 #include <DRV8434S.h> //Stepper motor driver Library
 #include <Adafruit_NeoPixel.h>// to control RGB led on board
 
+#include "Isotope_breakout_defs.h"
+#include "Communication_protocol.h"
+#include "Isotope_port_pwm.h"
 
 // Constructors-----------------------------------------------------------------
 //Temp sensors, class, pin, object
@@ -33,6 +34,8 @@ MicroDS18B20<Temp_In_2> Temp_sensor_2;
 
 // RGB LED
 Adafruit_NeoPixel rgb(1, RGB_LED, NEO_GRB + NEO_KHZ800);
+
+IsotopePWMController pwm_controller;
 
 //Stepper motors
 // This period is the length of the delay between steps, which controls the
@@ -66,6 +69,10 @@ void setup() {
 
   //Initialize SPI communications
   SPI.begin();
+
+  //Initialize ports
+  uint8_t pwm_port_pins[4] = {PWM_0, PWM_1, PWM_2, PWM_3};
+  pwm_controller.setup(pwm_port_pins, PWM_EN);
 
   //Start comms
   Serial.begin(115200);

@@ -7,23 +7,17 @@
 #ifndef ISOTOPE_FUNC_H
 #define ISOTOPE_FUNC_H
 #include <Arduino.h>
+#include "Isotope_breakout_defs.h"
 
 //General variables to store current values
-int POWER_OUT_VAL_0 = 0;
-int POWER_OUT_VAL_1 = 0;
-int POWER_OUT_VAL_2 = 0;
-
-int PWM_OUT_VAL_0 = 0;
-int PWM_OUT_VAL_1 = 0;
-int PWM_OUT_VAL_2 = 0;
-int PWM_OUT_VAL_3 = 0;
-
-bool PWM_EN_VAL = true;//PWM enable by default
+int power_out_val_0 = 0;
+int power_out_val_1 = 0;
+int power_out_val_2 = 0;
 
 //Store general variables for RGB_LED Colour
-int RGB_RED = 0;
-int RGB_GREEN = 0;
-int RGB_BLUE = 0;
+int rgb_red = 0;
+int rgb_green = 0;
+int rgb_blue = 0;
 
 //General variables for motor control
 //Time delay between steps in microseconds, per motor
@@ -56,51 +50,99 @@ int Motor_steps_speed_3 = 0;
 
 //Communication latency counter and max latency
 unsigned long Time_since_last_comms = 0;
-uint16_t Comms_max_latency = 10000;// Equal to 10 seconds
+unsigned long Comms_max_latency = 1000000000;// Equal to 10 seconds
 bool Heartbeat_alive = true;
 
 // Complementary Functions for GET commands-------------------------------------
+
+/// @brief Returns the information of the board and the firmware
+/// @return ID of the board and firmware version in a human readable format
 String who_am_i();
 
-//Function to read an analog channel and return the ADC value (0 to 1024)
+/// @brief Reads the value of the specified analog channel
+/// @param analog_channel Analog channel ID
+/// @return Analog value from 0 to 1024
 int  read_analogue_val(int analog_channel);
 
-//Read PWM enable status
+/// @brief Reads the enable status for all PWM ports
+/// @return Enable status for all PWM ports
 bool read_pwm_en();
 
-//Read Temperature value in C
+/// @brief Reads the value of the specified PWM ports
+/// @param item Port ID
+/// @return PWM value of the PWM port
+int read_pwm_out_val(int item);
+
+/// @brief Reads the value of the specified power output ports
+/// @param item Port ID
+/// @return PWM value of the power output port
+int read_power_out_val(int item);
+
+/// @brief Reads temperature sensor value in Celsius
+/// @param item Port ID
+/// @return Temperature value in Celsius
 float read_temp_sensor(int item);
 
-//Read Motor Speed
+/// @brief Reads the motor speed in revolutions per minute of the specified motor port
+/// @param item Port ID
+/// @return Motor speed in RPM
 int read_motor_rpm_speed(int item);
 
-//Set outoput power, set the PWM value of the Power Outputs (0 to 1024)
+/// @brief Sets the PWM value of the specified power output port
+/// @param item Port ID
+/// @param pwm_value PWM value from 0 to 1024
 void set_output_power(int item, int pwm_value);
 
-//Set PWM output value, se the PWM value of the PWM outputs (0 to 1024)
-void set_pwm_output(int item, int pwm_value);
+/// @brief Sets the mode of the specified PWM output port
+/// @param item Port ID
+/// @param pwm_mode PWM mode, SERVO or STANDARD
+///   Set to SERVO to use the servo library functions, and control the PWM output in degrees or microseconds
+///   Set to STANDARD to use the standard PWM output, and control the PWM output in the range of 0 to 1024
+void set_pwm_mode(int item, pwm_mode_t pwm_mode);
 
-//Set PWM enable
+/// @brief Sets the PWM value of the specified PWM output port
+/// @param item Port ID
+/// @param pwm_value value of the PWM output
+/// @param value_type type of the value, PWM or MS. 
+///   In STANDARD mode, only PWM is valid and the value range from 0 to 1024.
+///   In SERVO mode with PWM value type, it calls the servo.write(value) function. Please refer to the servo library for more information.
+///   In SERVO mode with MS value type, it calls the servo.writeMicroseconds(value) function. Please refer to the servo library for more information.
+void set_pwm_output(int item, int pwm_value, pwm_value_type_t value_type);
+
+/// @brief Enables or disables all PWM outputs
+/// @param state True to enable PWM outputs, False to disable PWM outputs
 void set_pwm_en(bool state);
 
-//Set motor speed in revolutions per minute
+/// @brief Sets motor speed in revolutions per minute
+/// @param item Port ID
+/// @param speed_value Speed value in revolutions per minute
 void set_motor_rpm_speed(int item, int speed_value);
 
-//Set the colors of the RGB LED on board
-void set_rgb(int channel, int pwm_val);
+/// @brief Sets the colors of the RGB LED on board
+/// @param rgb_values values of the Red, Green and Blue channels
+void set_rgb(int *rgb_values);
 
-//Set motor steps, set the direction based on sign and the absolute value for steps
+
+void set_rgb(int channel, int value);
+
+/// @brief Sets motor steps, set the direction based on sign and the absolute value for steps
+/// @param item Port ID
+/// @param steps Step value, positive for forward, negative for backward
 void set_motor_steps(int item, int steps);
 
-//Set motor current in milliamps
+/// @brief Sets motor current limit in milliamps
+/// @param item Port ID
+/// @param current Current limit in milliamps
 void set_motor_current_milliamps(int item, int current);
 
-//Set motor enable
+/// @brief Enables or disables motor
+/// @param item Port ID
+/// @param state True to enable motor, False to disable motor
 void set_motor_enable(int item, bool state);
 
-//Update the time of when the last communication was received
+/// @brief Updates the time of when the last communication was received
 void update_comms_latency();
 
-//Check how long has it been since last communication and update HB_alive flag
+/// @brief Checks how long has it been since last communication and update HB_alive flag
 void check_comms_latency();
 #endif

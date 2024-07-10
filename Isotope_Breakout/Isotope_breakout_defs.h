@@ -6,8 +6,7 @@ Isotpe Breakout V0.1
 #ifndef ISOTOPE_DEFS_H
 #define ISOTOPE_DEFS_H
 #include <Arduino.h>
-
-#define FIRMWARE_VERSION "1.0.1"
+#include "version.h"
 
 //Power Outputs
 #define POWER_OUT_0       8
