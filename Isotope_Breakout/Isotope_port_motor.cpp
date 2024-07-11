@@ -23,43 +23,55 @@ void IsotopeMotor::setup(uint8_t pin)
     reset();
 }
 
-void IsotopeMotor::stepOnce()
+bool IsotopeMotor::begin()
 {
-    if (!_busy)
+    if (_steps == 0 || !_is_enabled)
     {
-        if (!_begin())
-        {
-            return;
-        }
+        return false;
+    }
+    _step_remaining = abs(_steps);
+
+    if (_steps > 0)
+    {
+        _driver.setDirection(0);
+    }
+    else
+    {
+        _driver.setDirection(1);
+    }
+    _timer.begin(_step_period, true);
+    return true;
+}
+
+int IsotopeMotor::stepOnce()
+{
+    if (_step_remaining <= 0)
+    {
+      return _step_remaining;
     }
     if (_timer.fire(true))
     {
         _driver.step();
         _step_remaining--;
-        // Serial.print(micros());
-        // Serial.print(",");
-        // Serial.print(_step_remaining);
-        // Serial.print(",");
-        // Serial.println((float)_timer.timeDiff / (float)_step_period);
+        Serial.print("|");
+        Serial.print(micros());
+        Serial.print(",");
+        Serial.print(_step_remaining);
+        Serial.print(",");
+        Serial.println((float)_timer.timeDiff / (float)_step_period);
     }
-    if (_step_remaining <= 0)
-    {
-        _busy = false;
-        _steps = 0;
-    }
+    return _step_remaining;
 }
 
 void IsotopeMotor::enable()
 {
     _driver.enableDriver();
-    reset();
     _is_enabled = true;
 }
 
 void IsotopeMotor::disable()
 {
     _driver.disableDriver();
-    reset();
     _is_enabled = false;
 }
 
@@ -79,27 +91,6 @@ void IsotopeMotor::set_step_angle(int step_angle)
 {
     _step_angle = step_angle;
     _update_param();
-}
-
-bool IsotopeMotor::_begin()
-{
-    if (_steps == 0 || !_is_enabled)
-    {
-        return false;
-    }
-    _busy = true;
-    _step_remaining = abs(_steps);
-
-    if (_steps > 0)
-    {
-        _driver.setDirection(0);
-    }
-    else
-    {
-        _driver.setDirection(1);
-    }
-    _timer.begin(_step_period, true);
-    return true;
 }
 
 void IsotopeMotor::_update_param()
@@ -139,6 +130,7 @@ void IsotopeMotorController::set_step(uint8_t port, int step, cmd_resp_t &respon
     if (!_validate_port(port, response))
         return;
     _motors[port]->set_steps(step);
+    response = CMD_ACK;
 }
 
 void IsotopeMotorController::set_current_milliamps(uint8_t port, int current_value, cmd_resp_t &response)
@@ -183,16 +175,11 @@ int IsotopeMotorController::get_current_milliamps(uint8_t port, cmd_resp_t &resp
     return _motors[port]->get_current_milliamps();
 }
 
-bool IsotopeMotorController::is_busy(uint8_t port)
-{
-    return _motors[port]->is_busy();
-}
-
-void IsotopeMotorController::step_once()
+void IsotopeMotorController::step_all_once(int *remaining_steps)
 {
     for (int i = 0; i < 4; ++i)
     {
-        _motors[i]->stepOnce();
+        remaining_steps[i] = step_once(i);
     }
 }
 
@@ -203,6 +190,6 @@ bool IsotopeMotorController::_validate_port(uint8_t port, cmd_resp_t &response)
         response = WRONG_CMD_ITEM;
         return false;
     }
-    response = OK;
+    response = CMD_SUCCESS;
     return true;
 }

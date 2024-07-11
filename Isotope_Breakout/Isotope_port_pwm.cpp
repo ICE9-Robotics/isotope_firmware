@@ -109,7 +109,7 @@ void IsotopePWMController::set_mode(uint8_t port, pwm_mode_t mode, cmd_resp_t &r
         return;
     }
     pwm_ports[port]->set_mode(mode);
-    response = OK;
+    response = CMD_SUCCESS;
 }
 
 void IsotopePWMController::set_control_value(uint8_t port, int value, int value_type, cmd_resp_t &response)
@@ -134,7 +134,7 @@ void IsotopePWMController::set_control_value(uint8_t port, int value, pwm_value_
         response = WRONG_CMD_VALUE;
         return;
     }
-    response = OK;
+    response = CMD_SUCCESS;
 }
 
 int IsotopePWMController::get_control_value(uint8_t port, cmd_resp_t &response)
@@ -144,6 +144,6 @@ int IsotopePWMController::get_control_value(uint8_t port, cmd_resp_t &response)
         response = WRONG_CMD_ITEM;
         return -1;
     }
-    response = OK;
+    response = CMD_SUCCESS;
     return pwm_ports[port]->get_control_value();
 }

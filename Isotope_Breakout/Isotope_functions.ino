@@ -97,7 +97,7 @@ void set_output_power(int item, int pwm_value)
 }
 
 // Set the colors of the RGB LED on board
-void set_rgb(int *rgb_val)
+void set_rgb(const int *rgb_val)
 {
   rgb_red = rgb_val[0];
   rgb_green = rgb_val[1];
@@ -146,7 +146,6 @@ void check_comms_latency()
     set_output_power(2, 0);
     // TODO turn Off Power Outputs PWMs
     // Set the RGB in RED to show this
-    int rgb_val[3] = {30, 0, 0};
-    set_rgb(rgb_val);
+    set_rgb(0, 30);
   }
 }

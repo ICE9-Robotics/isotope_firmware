@@ -10,8 +10,8 @@ class IsotopeMotor
 public:
     void setup(uint8_t pin);
 
-    inline void set_steps(int steps) { _steps = steps; }
-    void stepOnce();
+    bool begin();
+    int stepOnce();
 
     inline void reset()
     {
@@ -24,6 +24,7 @@ public:
     void disable();
     void set_current_milliamps(int current_value);
 
+    inline void set_steps(int steps) { _steps = steps; }
     void set_rpm(int rpm);
     void set_step_angle(int step_angle);
 
@@ -48,7 +49,6 @@ private:
     int _step_period;
     int _current;
 
-    bool _begin();
     void _update_param();
 };
 
@@ -65,9 +65,11 @@ public:
     int get_rpm(uint8_t port, cmd_resp_t &response);
     int get_step(uint8_t port, cmd_resp_t &response);
     int get_current_milliamps(uint8_t port, cmd_resp_t &response);
-    bool is_busy(uint8_t port);
-
-    void step_once();
+    
+    inline bool begin(uint8_t port) { return _motors[port]->begin(); }
+    inline bool is_busy(uint8_t port) { return _motors[port]->is_busy(); }
+    inline int step_once(uint8_t port) { return _motors[port]->stepOnce(); }
+    void step_all_once(int *remaining_steps);
 
 private:
     IsotopeMotor *_motors[4];

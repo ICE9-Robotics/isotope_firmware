@@ -19,6 +19,7 @@ const String PWM_VALUE_TYPE_MS_s = "1";
 
 //Section Definitions
 const String WHO_I_AM         =   "Who_I_am";
+const String COMM_MAX_LATENCY =   "Comm_max_latency";
 const String ID_VALUE         =   "ID_value";
 const String HEARTBEAT        =   "HeartBeat";
 const String POWER_OUTPUT     =   "Power_output";
@@ -35,7 +36,9 @@ const String MOTOR_ENABLE     =   "Motor_enable";
 const String PWM_MODE         =   "PWM_mode";
 
 // Responses Definitions
-const String CMD_ACK =  "ACK"; //Used as a code for 'No error'
+const String CMD_ACK_S =  "ACK"; //Used as a code for 'No error'
+const String CMD_SUCCESS_S = "SUCCESS";
+const String CMD_ABORT_S = "ABORT";
 
 //Command strcuture-------------------------------------------------------------
 struct CMD_t {
@@ -53,12 +56,14 @@ const String WRONG_CMD_ITEM_S =           "ERR3";
 const String WRONG_CMD_VALUE_S =          "ERR4";
 
 enum cmd_resp_t{
-  OK = 0,
+  CMD_ACK = 0,
   WRONG_JSON_FORMAT = 1,
   WRONG_CMD_TYPE = 2,
   WRONG_CMD_SECTION = 3,
   WRONG_CMD_ITEM = 4,
-  WRONG_CMD_VALUE = 5
+  WRONG_CMD_VALUE = 5,
+  CMD_SUCCESS = 6,
+  CMD_ABORT = 7
 };
 
 #endif

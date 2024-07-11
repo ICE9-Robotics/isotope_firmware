@@ -50,7 +50,7 @@ int Motor_steps_speed_3 = 0;
 
 // Communication latency counter and max latency
 unsigned long Time_since_last_comms = 0;
-unsigned long Comms_max_latency = 1000000000; // Equal to 10 seconds
+unsigned long Comms_max_latency = 10000; // Equal to 10 seconds
 bool Heartbeat_alive = true;
 
 // Complementary Functions for GET commands-------------------------------------
@@ -81,7 +81,7 @@ void set_output_power(int item, int pwm_value);
 
 /// @brief Sets the colors of the RGB LED on board
 /// @param rgb_values values of the Red, Green and Blue channels
-void set_rgb(int *rgb_values);
+void set_rgb(const int *rgb_values);
 
 void set_rgb(int channel, int value);
 
