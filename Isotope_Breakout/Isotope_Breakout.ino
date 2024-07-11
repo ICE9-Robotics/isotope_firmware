@@ -59,7 +59,7 @@ void setup() {
 
   //Start comms
   Serial.begin(115200);
-  if(Debug_flag){
+  Serial.setTimeout(50);
     Serial.print(">>Initializing Isotope Breakout firmware version ");
     Serial.println(FIRMWARE_VERSION);
   }
