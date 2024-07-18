@@ -30,7 +30,7 @@ void add_motor_task(int seq, int port_id, int steps)
 int remaining_steps = 0;
 void motor_spin_once()
 {
-  for (int i = 0; i < 4; i ++)
+  for (int i = 0; i < 4; i++)
   {
     if (motor_tasks[i].completed)
     {
@@ -38,7 +38,7 @@ void motor_spin_once()
     }
     if (motor_tasks[i].current_seq != motor_tasks[i].seq)
     { // a new task
-      if (! motor_controller.begin(i))
+      if (!motor_controller.begin(i))
       { // fail to begin the new task, due to zero steps or motor being disabled.
         delay(1);
         abort_motor_task(i);
@@ -47,7 +47,6 @@ void motor_spin_once()
       motor_tasks[i].current_seq = motor_tasks[i].seq;
     }
     remaining_steps = motor_controller.step_once(i);
-
     if (remaining_steps <= 0)
     {
       complete_motor_task(i);

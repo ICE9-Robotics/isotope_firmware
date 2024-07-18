@@ -12,10 +12,10 @@
 // Type Definitions
 const String GET_S = "GET";
 const String SET_S = "SET";
-const String PWM_MODE_STANDARD_s = "0";
-const String PWM_MODE_SERVO_s = "1";
-const String PWM_VALUE_TYPE_PWM_s = "0";
-const String PWM_VALUE_TYPE_MS_s = "1";
+const int PWM_MODE_STANDARD_I = 0;
+const int PWM_MODE_SERVO_I = 1;
+const int PWM_VALUE_TYPE_PWM_I = 0;
+const int PWM_VALUE_TYPE_MS_I = 1;
 
 //Section Definitions
 const String WHO_I_AM         =   "Who_I_am";
@@ -37,15 +37,8 @@ const String PWM_MODE         =   "PWM_mode";
 
 // Responses Definitions
 const String CMD_ACK_S =  "ACK"; //Used as a code for 'No error'
-const String CMD_SUCCESS_S = "SUCCESS";
-const String CMD_ABORT_S = "ABORT";
-
-//Command strcuture-------------------------------------------------------------
-struct CMD_t {
-  String type;
-  int reg_addrs;
-  int payload;
-};
+const String CMD_SUCCESS_S = "SUC";
+const String CMD_ABORT_S = "ABT";
 
 //Errors commands---------------------------------------------------------------
 const String UNKNOWN_RESP_S =             "ERR";
@@ -54,16 +47,25 @@ const String WRONG_CMD_TYPE_S =           "ERR1";
 const String WRONG_CMD_SECTION_S =        "ERR2";
 const String WRONG_CMD_ITEM_S =           "ERR3";
 const String WRONG_CMD_VALUE_S =          "ERR4";
+const String HARDWARE_ERROR_S =           "ERR5";
+
+//Command strcuture-------------------------------------------------------------
+struct CMD_t {
+  String type;
+  int reg_addrs;
+  int payload;
+};
 
 enum cmd_resp_t{
   CMD_ACK = 0,
-  WRONG_JSON_FORMAT = 1,
-  WRONG_CMD_TYPE = 2,
-  WRONG_CMD_SECTION = 3,
-  WRONG_CMD_ITEM = 4,
-  WRONG_CMD_VALUE = 5,
-  CMD_SUCCESS = 6,
-  CMD_ABORT = 7
+  CMD_SUCCESS = 1,
+  CMD_ABORT = 2,
+  WRONG_JSON_FORMAT = 3,
+  WRONG_CMD_TYPE = 4,
+  WRONG_CMD_SECTION = 5,
+  WRONG_CMD_ITEM = 6,
+  WRONG_CMD_VALUE = 7,
+  HARDWARE_ERROR = 8
 };
 
 #endif

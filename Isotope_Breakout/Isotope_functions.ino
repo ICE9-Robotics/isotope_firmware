@@ -19,98 +19,38 @@ String who_am_i()
 // Function to read an analog channel and return the ADC value (0 to 1024)
 int read_analogue_val(int analog_channel)
 {
-  // Select which PIN to use for the analogue read
-  if (analog_channel == 0)
-  {
-    return analogRead(Analog_In_0);
-  }
-  else if (analog_channel == 1)
-  {
-    return analogRead(Analog_In_1);
-  }
-  else if (analog_channel == 2)
-  {
-    return analogRead(Analog_In_2);
-  }
-  return 0; // Wrong channel, return empty value
+  return analogRead(analogue_pins[analog_channel]);
 }
 
 int read_power_out_val(int item)
 {
-  switch (item)
-  {
-  case 0:
-    return power_out_val_0;
-    break;
-  case 1:
-    return power_out_val_1;
-    break;
-  case 2:
-    return power_out_val_2;
-    break;
-  }
-  return 0; // In case wrong sensor index is requested
-}
-
-// Read Temperature value in C
-float read_temp_sensor(int item)
-{
-  switch (item)
-  {
-  case 0:
-    Temp_sensor_0.requestTemp(); // Request temp
-    delay(10);
-    return Temp_sensor_0.getTemp(); // Read temperature
-    break;
-  case 1:
-    Temp_sensor_1.requestTemp(); // Request temp
-    delay(10);
-    return Temp_sensor_1.getTemp(); // Read temperature
-    break;
-  case 2:
-    Temp_sensor_2.requestTemp(); // Request temp
-    delay(10);
-    return Temp_sensor_2.getTemp(); // Read temperature
-    break;
-  }
-  return 0; // In case wrong sensor index is requested
+  return power_out_vals[item];
 }
 
 // Set outoput power, set the PWM value of the Power Outputs (0 to 1024)
 void set_output_power(int item, int pwm_value)
 {
-  switch (item)
-  {
-  case 0:
-    power_out_val_0 = pwm_value;
-    analogWrite(POWER_OUT_0, pwm_value);
-    break;
-  case 1:
-    power_out_val_1 = pwm_value;
-    analogWrite(POWER_OUT_1, pwm_value);
-    break;
-  case 2:
-    power_out_val_2 = pwm_value;
-    analogWrite(POWER_OUT_2, pwm_value);
-    break;
-  }
+  power_out_vals[item] = pwm_value;
+  analogWrite(power_out_pins[item], pwm_value);
 }
 
 // Set the colors of the RGB LED on board
+void set_rgb()
+{
+  rgb.setPixelColor(0, rgb.Color(led_rgb_vals[0], led_rgb_vals[1], led_rgb_vals[2]));
+  rgb.show();
+}
+
 void set_rgb(const int *rgb_val)
 {
-  rgb_red = rgb_val[0];
-  rgb_green = rgb_val[1];
-  rgb_blue = rgb_val[2];
-  rgb.setPixelColor(0, rgb.Color(rgb_red, rgb_green, rgb_blue));
-  rgb.show();
+  memcpy(led_rgb_vals, rgb_val, sizeof(led_rgb_vals));
+  set_rgb();
 }
 
 void set_rgb(int channel, int value)
 {
-  int rgb[3];
-  rgb[channel] = value;
-  set_rgb(rgb);
+  led_rgb_vals[channel] = value;
+  set_rgb();
 }
 
 // Update the time of when the last communication was received
@@ -123,7 +63,7 @@ void update_comms_latency()
   {
     Heartbeat_alive = true;
     // Clear the RED colour of the RGB
-    set_rgb(1, 0);
+    set_rgb(0, 0);
   }
 }
 

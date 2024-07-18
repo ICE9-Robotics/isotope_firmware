@@ -27,6 +27,7 @@
 #include "Isotope_port_pwm.h"
 #include "Isotope_port_motor.h"
 #include "Isotope_motor_manager.h"
+#include "Isotope_port_temp.h"
 
 // Constructors-----------------------------------------------------------------
 // Temp sensors, class, pin, object
@@ -146,6 +147,8 @@ void loop()
 
   // Receive, decode and execute commands
   handle_incoming_cmd();
+
+  handle_temp_sensor();
 
   // Check for Comms latency. This feature is necessary to ensure the Isotope Board is
   // in constant communication with the control PC and if its not, to set all the control

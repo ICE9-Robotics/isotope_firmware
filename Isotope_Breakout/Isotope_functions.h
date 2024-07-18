@@ -9,44 +9,13 @@
 #include <Arduino.h>
 #include "Isotope_breakout_defs.h"
 
-// General variables to store current values
-int power_out_val_0 = 0;
-int power_out_val_1 = 0;
-int power_out_val_2 = 0;
+// I/O pin values
+int power_out_vals[3] = {0, 0, 0};
+int led_rgb_vals[3] = {0, 0, 0};
 
-// Store general variables for RGB_LED Colour
-int rgb_red = 0;
-int rgb_green = 0;
-int rgb_blue = 0;
-
-// General variables for motor control
-// Time delay between steps in microseconds, per motor
-uint32_t Step_Period_uS_0 = 2000;
-uint32_t Step_Period_uS_1 = 2000;
-uint32_t Step_Period_uS_2 = 2000;
-uint32_t Step_Period_uS_3 = 2000;
-// Motor  continious speed values given by the user. TODO: Set the values to revs/min
-//  Motor continious speed can be positive or negative, which determines the direction of movement
-int Motor_rpm_speed_0 = 0;
-int Motor_rpm_speed_1 = 0;
-int Motor_rpm_speed_2 = 0;
-int Motor_rpm_speed_3 = 0;
-
-int Max_motor_rpm_speed = 200; // Limit speed to 200 revs per minute
-
-// Motor steps given by the user
-// Motor steps can be positive or negative, which determine
-int Motor_steps_0 = 0;
-int Motor_steps_1 = 0;
-int Motor_steps_2 = 0;
-int Motor_steps_3 = 0;
-
-// Motor step speed
-// Motor steps speed is a magnitud, only positive values accepted
-int Motor_steps_speed_0 = 0;
-int Motor_steps_speed_1 = 0;
-int Motor_steps_speed_2 = 0;
-int Motor_steps_speed_3 = 0;
+// I/O pin arrays
+int analogue_pins[3] = {Analog_In_0, Analog_In_1, Analog_In_2};
+int power_out_pins[3] = {POWER_OUT_0, POWER_OUT_1, POWER_OUT_2};
 
 // Communication latency counter and max latency
 unsigned long Time_since_last_comms = 0;
@@ -68,11 +37,6 @@ int read_analogue_val(int analog_channel);
 /// @param item Port ID
 /// @return PWM value of the power output port
 int read_power_out_val(int item);
-
-/// @brief Reads temperature sensor value in Celsius
-/// @param item Port ID
-/// @return Temperature value in Celsius
-float read_temp_sensor(int item);
 
 /// @brief Sets the PWM value of the specified power output port
 /// @param item Port ID

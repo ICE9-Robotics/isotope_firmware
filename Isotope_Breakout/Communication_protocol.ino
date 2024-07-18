@@ -19,11 +19,11 @@
 //  Allocate the JSON document
 JsonDocument json_doc;
 // char json_msg[] =
-//       '{"type": "GET", "section": "POWER_OUTPUT", "item": 3, "value": [0, 0]}';
+//       '{"seq":1, "type": "GET", "section": "Power_output", "item": 3, "value": [0, 0]}';
 // Serial commands for test.
-// {"type": "SET", "section": "PWM_enable", "item": 0, "value": [1,0]}
-// {"type": "SET", "section": "PWM_mode", "item": 0, "value": [1,0]}
-// {"type": "SET", "section": "PWM_output", "item": 0, "value": [180,0]}
+// {"seq":1, "type": "SET", "section": "PWM_enable", "item": 0, "value": [1,0]}
+// {"seq":2, "type": "SET", "section": "PWM_mode", "item": 0, "value": [1,0]}
+// {"seq":3, "type": "SET", "section": "PWM_output", "item": 0, "value": [180,0]}
 
 // {"seq": 1, "type": "SET", "section": "Motor_enable", "item": 0, "value": [1,0]}{"seq": 2, "type": "SET", "section": "Motor_step_angle", "item": 0, "value": [7.5,0]}{"seq": 3, "type": "SET", "section": "Motor_rpm_speed", "item": 0, "value": [100,0]}
 // {"seq": 4, "type": "SET", "section": "Motor_step", "item": 0, "value": [10,0]}
@@ -57,68 +57,84 @@ bool validate_item_value(int seq_i, int item, int min, int max)
 
 bool handle_incoming_cmd()
 {
-  String error_s = "0";       // Initialize variable to store ERROR
-  if (Serial.available() > 0) // Is there is avaiable serial Data
+  if (Serial.available() < 1) // If there is no avaiable serial Data
   {
-    const auto deser_err = deserializeJson(json_doc, Serial); // Deserialize JSON data
-    if (deser_err)
-    { // Test for errors on the JSON format
-      if (Debug_flag)
-      {
-        Serial.print(F("Failed to deserialize, reason: \""));
-        Serial.print(deser_err.c_str());
-        Serial.println('"');
-      }
-      // Send error feedback
-      send_reply(0, 0, WRONG_JSON_FORMAT_S);
+    return false;
+  }
+  String error_s = "0"; // Initialize variable to store ERROR
+
+  const auto deser_err = deserializeJson(json_doc, Serial); // Deserialize JSON data
+  if (deser_err)
+  { // Test for errors on the JSON format
+    if (Debug_flag)
+    {
+      Serial.print(F("Failed to deserialize, reason: \""));
+      Serial.print(deser_err.c_str());
+      Serial.println('"');
     }
-    else
+    // Send error feedback
+    send_reply(-1, 0, WRONG_JSON_FORMAT_S);
+    return false;
+  }
+
+  if (Debug_flag)
+  {
+    Serial.print(F("Recevied valid json document with "));
+    Serial.print(json_doc.size());
+    Serial.println(F(" elements."));
+    serializeJsonPretty(json_doc, Serial);
+    Serial.println();
+  }
+
+  // Break the JSON into needed parts
+  int seq_i = json_doc["seq"];
+  String type_s = json_doc["type"];
+  String section_s = json_doc["section"];
+  int item_i = json_doc["item"];
+
+  // Update the heartbeat, as comunication from the control PCB has been received
+  update_comms_latency();
+
+  // Call handle function depending on which was the request
+  if (type_s.substring(0, 3) == GET_S)
+  {
+    if (Debug_flag)
+    {
+      Serial.println(F("Request of a GET command"));
+    }
+
+    execute_get_cmd(seq_i, section_s, item_i);
+    return true;
+  }
+
+  if (type_s.substring(0, 3) == SET_S)
+  {
+    if (Debug_flag)
+    {
+      Serial.println(F("Request of a SET command"));
+    }
+
+    int n_vals = json_doc["value"].size();
+    if (n_vals == 0)
     {
       if (Debug_flag)
       {
-        Serial.print(F("Recevied valid json document with "));
-        Serial.print(json_doc.size());
-        Serial.println(F(" elements."));
-        serializeJsonPretty(json_doc, Serial);
-        Serial.println();
+        Serial.print(F("Failed to unpack, reason: \""));
+        Serial.print(F("Value must be an array, a single value was received instead."));
+        Serial.println('"');
       }
-
-      // Break the JSON into needed parts
-      int seq_i = json_doc["seq"];
-      String type_s = json_doc["type"];
-      String section_s = json_doc["section"];
-      int item_i = json_doc["item"];
-
-      // Update the heartbeat, as comunication from the control PCB has been received
-      update_comms_latency();
-      // Call handle function depending on which was the request
-      if (type_s.substring(0, 3) == GET_S)
-      {
-        if (Debug_flag)
-        {
-          Serial.println("Request of a GET command");
-        }
-        // Request is a GET command, execute it
-        execute_get_cmd(seq_i, section_s, item_i);
-      }
-      else if (type_s.substring(0, 3) == SET_S)
-      {
-        if (Debug_flag)
-        {
-          Serial.println("Request of a SET command");
-        }
-        // Request is a SET command, execute it
-        int value_a[2];
-        value_a[0] = json_doc["value"][0];
-        value_a[1] = json_doc["value"][1];
-        execute_set_cmd(seq_i, section_s, item_i, value_a);
-      }
-      else
-      {
-      }
+      // Send error feedback
+      send_reply(seq_i, 0, WRONG_JSON_FORMAT_S);
+      return false;
     }
+    int value_a[n_vals];
+    copyArray(json_doc["value"], value_a, n_vals);
+    execute_set_cmd(seq_i, section_s, item_i, value_a);
+    return true;
   }
-  return 0; // No errors
+
+  send_reply(seq_i, 0, WRONG_CMD_TYPE_S);
+  return false;
 }
 
 // Handle command request functions--------------------------------------------------
@@ -152,7 +168,9 @@ void execute_get_cmd(int seq_i, String section_s, int item_i)
     {
       return;
     }
-    payload_i = read_temp_sensor(item_i);
+    request_temp_sensor(seq_i, item_i);
+    payload_i = 0;
+    response = CMD_ACK;
   }
   else if (PWM_OUTPUT == section_s)
   {
@@ -245,7 +263,10 @@ void execute_set_cmd(int seq_i, String section_s, int item_i, int *value_a)
   else if (MOTOR_STEP == section_s)
   {
     motor_controller.set_step(item_i, value_a[0], response);
-    add_motor_task(seq_i, item_i, value_a[0]);
+    if (response == CMD_ACK)
+    {
+      add_motor_task(seq_i, item_i, value_a[0]);
+    }
   }
   else if (MOTOR_CURRENT_MILLIAMPS == section_s)
   {
@@ -277,7 +298,7 @@ void send_reply(int seq_i, String payload_s, String error_s)
 {
   JsonDocument out_msg; // Output JSON document
   // Setup JSON sections
-  out_msg["seq"] = seq_i; 
+  out_msg["seq"] = seq_i;
   out_msg["payload"] = payload_s;
   out_msg["error"] = error_s;
   send_reply(out_msg);
@@ -288,7 +309,7 @@ void send_reply(int seq_i, int payload_i, String error_s)
 {
   JsonDocument out_msg; // Output JSON document
   // Setup JSON sections
-  out_msg["seq"] = seq_i;  
+  out_msg["seq"] = seq_i;
   out_msg["payload"] = payload_i;
   out_msg["error"] = error_s;
   send_reply(out_msg);
@@ -299,7 +320,7 @@ void send_reply(int seq_i, float payload_f, String error_s)
 {
   JsonDocument out_msg; // Output JSON document
   // Setup JSON sections
-  out_msg["seq"] = seq_i;  
+  out_msg["seq"] = seq_i;
   out_msg["payload"] = payload_f;
   out_msg["error"] = error_s;
   send_reply(out_msg);
@@ -308,7 +329,9 @@ void send_reply(int seq_i, float payload_f, String error_s)
 volatile bool serial_busy = false;
 void send_reply(JsonDocument &out_msg)
 {
-  while (serial_busy) {}
+  while (serial_busy)
+  {
+  }
   serial_busy = true;
   serializeJson(out_msg, Serial); // Serialize JSON and send it through serial
   Serial.println();               // Send an end of line since Python is waiting for it
