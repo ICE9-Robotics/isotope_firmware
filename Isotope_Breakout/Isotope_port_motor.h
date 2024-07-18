@@ -17,7 +17,6 @@ public:
   {
     _steps = 0;
     _step_remaining = 0;
-    _busy = false;
   }
 
   void enable();
@@ -32,12 +31,10 @@ public:
   inline int get_steps() { return _steps; }
   inline int get_step_period() { return _step_period; }
   inline int get_current_milliamps() { return _current; }
-  inline bool is_busy() { return _busy; }
 
 private:
   DRV8434S _driver;
   FireTimer _timer;
-  bool _busy;
   bool _is_enabled;
   int _step_remaining;
 
@@ -68,7 +65,6 @@ public:
   int get_current_milliamps(uint8_t port, cmd_resp_t &response);
 
   inline bool begin(uint8_t port) { return _motors[port]->begin(); }
-  inline bool is_busy(uint8_t port) { return _motors[port]->is_busy(); }
   inline int step_once(uint8_t port) { return _motors[port]->stepOnce(); }
   void step_all_once(int *remaining_steps);
 

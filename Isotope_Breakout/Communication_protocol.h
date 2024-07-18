@@ -33,6 +33,7 @@ const String MOTOR_STEP_ANGLE =   "Motor_step_angle";
 const String MOTOR_STEP       =   "Motor_step";
 const String MOTOR_CURRENT_MILLIAMPS  =   "Motor_current_milliamps";
 const String MOTOR_ENABLE     =   "Motor_enable";
+const String MOTOR_BUSY       =   "Motor_busy";
 const String PWM_MODE         =   "PWM_mode";
 
 // Responses Definitions

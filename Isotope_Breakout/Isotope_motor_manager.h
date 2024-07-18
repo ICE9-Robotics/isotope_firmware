@@ -19,4 +19,6 @@ void add_motor_task(int seq, int port_id, int steps);
 
 void motor_spin_once();
 
+bool is_motor_busy(int port_id, cmd_resp_t &response);
+
 #endif

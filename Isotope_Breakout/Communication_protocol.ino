@@ -188,6 +188,10 @@ void execute_get_cmd(int seq_i, String section_s, int item_i)
   {
     payload_i = motor_controller.get_rpm(item_i, response);
   }
+  else if (MOTOR_BUSY == section_s)
+  {
+    payload_i = is_motor_busy(item_i, response);
+  }
   else if (COMM_MAX_LATENCY == section_s)
   {
     payload_i = Comms_max_latency;

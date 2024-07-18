@@ -53,3 +53,14 @@ void motor_spin_once()
     }
   }
 }
+
+bool is_motor_busy(int port_id, cmd_resp_t &response)
+{
+  if (port_id >= 4)
+  {
+    response = WRONG_CMD_ITEM;
+    return false;
+  }
+  response = CMD_SUCCESS;
+  return !motor_tasks[port_id].completed;
+}

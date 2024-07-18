@@ -107,10 +107,7 @@ void IsotopeMotor::_update_param()
     return;
   }
   _step_period = 60L * 1000L * 1000L / (_rpm * (360 / _step_angle));
-  if (_busy)
-  {
-    _timer.update(_step_period);
-  }
+  _timer.update(_step_period);
 }
 
 void IsotopeMotorController::setup(const uint8_t *pins)
