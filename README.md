@@ -1,5 +1,7 @@
 # Isotope Breakout firmware
 
+[Latest release](https://github.com/ICE9-Robotics/isotope_firmware/releases)
+
 ## Preparation
 
 To compile and upload the firmware to the Isotope Board, the Arduino IDE is used and necessary dependencies such as Arduino core and several external libraries need to be installed.
