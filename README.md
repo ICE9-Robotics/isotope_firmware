@@ -23,6 +23,7 @@ To compile this code, the following libraries are necessary:
 - microDS18B20
 - DRV8434S
 - Adafruit_NeoPixel
+- FireTimer
 
 To install them, in the Arduino IDE go to Sketch> Include Libary> Manage Libaries, search the names, select and install the latest versions.
 
